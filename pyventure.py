@@ -9,14 +9,16 @@ world = {}; # Nest keys are "dir" and "attr"
 adj = ["is dusty", "is dark", "smells of fish", "groans with every step you take", "seems ready to collapse at any moment", "feels as if caution should be advised", "is quite suspicious in here", "has music blaring from an unknown source"]
 places = ["a long hallway", "a doctor\'s office", "a library", "an armory", "a lab", "a classroom", "an armory", "a canteen", "a kitchen", "a generator room", "a factory", "an empty room", "a miniature stadium", "a garden", "a farm", "a doctor\'s office"];
 
-monster = ["Vogon", "Worm", "Gun", "."];
-attacks = [{25: "reads some poetry", 7: "throws a punch"}, {15: "cast a magic spell", 1: "nibbled a limb off"}, {55: "shotgunned", 19: "sniped", 30: "run'n'gunned"}, {25: "／", 15: "¶", 5: "•", 61: "‽"}];
-health = [4, 1, 1, 5];
+monster = ["Vogon", "Worm", "Gun", ".", ": FORTH", "Bad Rat", "Generic(?) Stormtrooper"];
+attacks = [{25: "reads some poetry", 7: "throws a punch"}, {15: "cast a magic spell", 1: "nibbled a limb off"}, {55: "shotgunned", 19: "sniped", 30: "run'n'gunned"}, {25: "／", 15: "¶", 5: "•", 61: "‽"}, {30: "0 /", 45: "HEX DB 400 C! 400 EXECUTE", 15: "10 -"}, {81: "made you ragequit", 10: "is a rocket rat", 25: "accidentally a physics", 11: "was a very bad rat", 1: "became a cat?‽‽‽"}, {5: "swung a generic sword"}];
+health = [4, 1, 1, 5, 4, 3, 15];
 
 limbs = 4;
 inv = {"PUNCH": 7, "RUN": 5, "PARRY": 0, "DODGE": -10};
 
-potwep = ["SWORD", "BOW", "VOGON POEM", "WAND", "TOPKEK", "CLUB", "DEATH RAY", "BOOK", "PEN", "COMIC SANS", "MICROSOFT WORD", "BANE OF HERO", "TUBA", "CHAIR", "BROKEN EL BLANCO ARRAY", "TOY GUN", "RUN"];
+potwep = ["SWORD", "BOW", "VOGON POEM", "WAND", "TOPKEK", "CLUB", "DEATH RAY", "BOOK", "PEN", "COMIC SANS", "MICROSOFT WORD", "BANE OF HERO", "TUBA", "CHAIR", "BROKEN EL BLANCO ARRAY", "TOY GUN", "RUN", "HAX"];
+
+
 
 def strife(pos):
     global world;
@@ -26,13 +28,13 @@ def strife(pos):
     ehp = copy.deepcopy(health[typ]);
     
     print("WOULD YOU LIKE TO ENGAGE IN COMBAT‽");
-    if not "y" in input("YN> ").lower():
+    engage = input("YN> ").lower();
+    if "n" in engage:
         print("The enemy seems confused, and takes out a cellualar phone.");
-        print("You seem to hear something, not knowing the sound's source.");
         print("You hear something come out of the room's loudspeakers.");
         print("\"This is Prostetnic Vogon Jeltz of the Galactic Hyperspace Planning Council...\"");
         sys.exit();
-    else:
+    elif "y" in engage:
         print("\n" * 100);
         print(monster[typ] + " is here!");
         while(ehp > 0 and limbs > 0):
@@ -50,7 +52,14 @@ def strife(pos):
                     if dc is 12359:
                         print("Oh, would you look at the time... H I G H N O O N");
                     if(wep.upper() == "RUN"):
-                        print("Coward.");
+                        if(int(math.ceil(dc / 20)) >= ehp):
+                            print("All " + monster[typ] + " limbs removed!");
+                            print("You win! You gain 1 useless murder point(s)!");
+                            world[pos]["attr"] &= ~(1 << 8);
+                            if typ is 2:
+                                print("You got GUN!");
+                                inv["BACK2BIZNIZ"] = 12359;
+                        print("You coward.");
                         return;
                     if not (wep.upper() == "PARRY" or wep.upper() == "DODGE" or wep.upper() == "RUN"):
                         print(str(int(math.ceil(dc / 20))) + " " + monster[typ] + " limb(s) removed!");
@@ -74,10 +83,13 @@ def strife(pos):
                     if dodged:
                         dc -= 10;
                     if(random.randint(1, 20) <= (dc % 20)):
+                        mod = 1;
                         if dodged:
                             dc += 10;
-                        print(monster[typ] + " " + attacks[typ][dc] + "! You lose " + str(int(math.ceil(dc / 20))) + " limb(s)!");
-                        limbs -= int(math.ceil(dc / 20));
+                        if parried:
+                            mod += 1;
+                        print(monster[typ] + " " + attacks[typ][dc] + "! You lose " + str(int(math.ceil(dc / 20)) * mod) + " limb(s)!");
+                        limbs -= int(math.ceil(dc / 20)) * mod;
                     else:
                         if parried:
                             print("You parried! " + monster[typ] + " looses " + str(int(math.ceil(dc / 20))) + " limbs!");
@@ -86,6 +98,10 @@ def strife(pos):
                             print(monster[typ] + " missed!");
                     parried = False;
                     dodged = False;
+            elif wep.upper() == "KAMIKAZE":
+                print("6 6 6 K I L L C H O P D E L U X E");
+                print("A L L   L I M B S   R E M O V E D");
+                sys.exit();
         if(limbs > 0):
             print("You win! You gain 1 useless murder point(s)!");
             world[pos]["attr"] &= ~(1 << 8);
@@ -95,6 +111,8 @@ def strife(pos):
         else:
             print("You are dead.");
             sys.exit();
+    else:
+        strife(pos);
 def begin():
     global world;
     global adj;
@@ -254,7 +272,7 @@ def init():
                 del(dirtodo[k]);
 
 init();
-while not "dir" in world[4545]:
+while (not "dir" in world[4545]) or (len(world) < 10):
     world = {};
     init();
 begin();

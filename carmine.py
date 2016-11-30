@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,34 +16,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Some ideas by ncc_42. Made by Nimbleguy/Nomble.
 
+
 import copy;
 import random;
 import sys;
 import math;
 import time;
 import os;
+import string;
 
 world = {}; # Nest keys are "dir" and "attr"
 #attr format: 1st bit is if win, 2-5 are place type, 6-8 are adjectives, 9 is if there are enemies, 10 is 1 if room was looted
 
 adj = ["is dusty", "is dark", "smells of fish", "groans with every step you take", "seems ready to collapse at any moment", "feels as if caution should be advised", "is quite suspicious in here", "has music blaring from an unknown source"];
-places = ["a long hallway", "a doctor\'s office", "a library", "an armory", "a lab", "a classroom", "an armory", "a canteen", "a kitchen", "a generator room", "a factory", "an empty room", "a miniature stadium", "a garden", "a farm", "a doctor\'s office"];
+places = ["a long hallway", "a doctor\'s office", "a library", "an armory", "a lab", "a classroom", "an armory", "a canteen", "a kitchen", "a generator room", "a factory", "an empty room", "a miniature stadium", "a border checkpoint", "a farm", "a doctor\'s office"];
 
 monster = ["Vogon", "Worm", "Gun", ".", ": FORTH", "Bad Rat", "Generic(?) Stormtrooper", "Octothorpe", "Scratch", "The Hexahedron", "Sickle and Star", "Crazy Pond Lady", "Clippy"];
-attacks = [{25: "reads some poetry", 7: "throws a punch"}, {15: "cast a magic spell", 1: "nibbled a limb off"}, {55: "shotgunned", 19: "sniped", 30: "run\'n\'gunned", 16: "run\'n\'gunned"}, {25: "／", 15: "¶", 5: "•", 61: "‽"}, {30: "0 /", 45: "HEX DB 400 C! 400 EXECUTE", 15: "10 -"}, {81: "made you ragequit", 10: "is a rocket rat", 25: "accidentally a physics", 11: "was a very bad rat", 1: "became a cat?‽‽‽"}, {1: "shot it\'s blaster"}, {15: "swung an Interrogative Mark", 30: "stabbed you with a Bang", 45: "chucked an Obelus"}, {30: "crashed"}, {-19: "is impervious to your primitive violence"}, {19: "can start a nuclear war", 26: "is sending their men to outer space", 33: "is working to Stalin's five-year plan", 44: "rejects free enterprise", 19: "has pointed all it's guns at the USA"}, {15: "distributes swords", 30: "is no basis for a system of government", 19: "calls you a watery tart"}, {39: "asks if you would like some help with that", 19: "notices you are trying to murder it", 50: "helps you with that"}];
+attacks = [{25: "reads some poetry", 7: "throws a punch"}, {15: "cast a magic spell", 1: "nibbled a limb off"}, {55: "shotgunned", 19: "sniped", 30: "run\'n\'gunned", 16: "run\'n\'gunned"}, {25: "／", 15: "¶", 5: "•", 61: "‽"}, {30: "0 /", 45: "HEX DB 400 C! 400 EXECUTE", 15: "10 -"}, {81: "made you ragequit", 10: "is a rocket rat", 25: "accidentally a physics", 11: "was a very bad rat", 1: "became a cat?‽‽‽"}, {1: "shot it\'s blaster"}, {15: "swung an Interrogative Mark", 30: "stabbed you with a Bang", 45: "chucked an Obelus"}, {30: "crashed"}, {-19: "is impervious to your primitive violence"}, {19: "can start a nuclear war", 26: "is sending their men to outer space", 33: "is working to Stalin's five-year plan", 44: "rejects free enterprise", 19: "has pointed all it's guns at the USA"}, {15: "distributes swords", 30: "is no basis for a system of government", 19: "calls you a watery tart"}, {39: "asks if you would like some help with that", 19: "notices you are trying to murder it", 50: "helps you with that", 38: "says \"It seems like you're digging your own grave. Is it a buisiness grave or a persoal grave?\""}];
 health = [4, 1, 1, 5, 4, 3, 15, 8, 5, 74088, 4, 2, 2];
 
 defl = copy.deepcopy(monster);
 defa = copy.deepcopy(attacks);
 defh = copy.deepcopy(health);
 
-bossl = ("Bill Cipher", "Yung Venuz", "Diamond Authority", "Waluigi", "Judgement")
-bossa = ({-39: "possessed you", 65: "began Weirdmageddon", 35: "made a deal", 83: "has some players they need to turn into corpses"}, {35: "gets back2bizniz", 45: "has guns that hate texas", 39: "has guns with six senses", -15: "only needs their Nuclear Throne", 50: "has guns that straight festive", 65: "has guns that send texts", 33: "has guns that wear vests", 12343: "shot GUN"}, {-50: "parried", -35: "used a soldier as a meatshield", -90: "sang a song", -31: "invaded", -162: "lanched the Cluster"}, {-19: "thinks you're a cheater", 50: "time", 65: "thyme", 19: "snipes you with a tennis racket?", -39: "is back. Now the game is funny again"}, {-30: "slams through you into the wall", 59: "shoots Refiner\'s Fire", 70: "lets loose bombs", 35: "shoots you with pellets"})
-bossh = (18, 10, 4, 8, 8)
+bossl = ("Bill Cipher", "Yung Venuz", "Diamond Authority", "Waluigi", "Judgement", "Kool Aid Man")
+bossa = ({-39: "possessed you", 65: "began Weirdmageddon", 35: "made a deal", 83: "has some players they need to turn into corpses"}, {35: "gets back2bizniz", 45: "has guns that hate texas", 39: "has guns with six senses", -15: "only needs their Nuclear Throne", 50: "has guns that straight festive", 65: "has guns that send texts", 33: "has guns that wear vests", 12343: "shot GUN"}, {-50: "parried", -35: "used a soldier as a meatshield", -90: "sang a song", -31: "invaded", -162: "lanched the Cluster"}, {-19: "thinks you're a cheater", 50: "time", 65: "thyme", 19: "snipes you with a tennis racket?", -39: "is back. Now the game is funny again"}, {-30: "slams through you into the wall", 59: "shoots Refiner\'s Fire", 70: "lets loose bombs", 35: "shoots you with pellets"}, {-19: "smashes down a wall", 8252: "... OH YEAH"})
+bossh = (18, 10, 4, 8, 8, 414)
 
-gunl = ("Revolver Gundra", "Assult Gun Launcher", "Super Plasma Cangun", "Auto Crossgun");
-guna = ({79: "shoots a triple barradge", 39: "resolves the conflict", 19: "shoots"}, {19: "launches a gun", 39: "assults you with guns", 119: "shoots a firing line into existance"}, {12355: "launched a barradge"}, {59: "fires some bolts", 99: "got it's trigger stuck", -39: "pins you down"});
-gunh = (5, 1, 1, 1);
+gunl = ("Revolver Gundra", "Assult Gun Launcher", "Super Plasma Cangun", "Auto Crossgun", "Classic Railgun");
+guna = ({79: "shoots a triple barradge", 39: "resolves the conflict", 19: "shoots"}, {19: "launches a gun", 39: "assults you with guns", 119: "shoots a firing line into existance"}, {12355: "launched a barradge"}, {59: "fires some bolts", 99: "got it's trigger stuck", -39: "pins you down"}, {19: "[UNINTELLIGBLE FIRING NOISES]", 35: "[INFERNAL NOISES OF HELL]", -87: "[BLINDING FLASH OF DEAFNESS]"});
+gunh = (5, 2, 1, 1, 2);
 
 fishl = ("Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Spanish Inquisition");
 fisha = ({-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-4041: "is unexpected"});
@@ -51,11 +54,14 @@ fishh = (1, 1, 1, 1, 1, 1, 1, 1, 1, 4)
 limbs = 4;
 inv = {"PUNCH": 7, "RUN": 5, "PARRY": 0, "DODGE": -10};
 
-potwep = ("SWORD", "BOW", "VOGON POEM", "WAND", "TOPKEK", "CLUB", "DEATH RAY", "BOOK", "PEN", "COMIC SANS", "MICROSOFT WORD", "BANE OF HERO", "TUBA", "CHAIR", "BROKEN EL BLANCO ARRAY", "TOY GUN", "RUN", "HAX", "©", "$$$$", "MIT SCRATCH", "MALBOLGE", "INTERCAL", "BROOM CLOSET");
+potwep = ("SWORD", "BOW", "VOGON POEM", "WAND", "TOPKEK", "CLUB", "DEATH RAY", "BOOK", "PEN", "COMIC SANS", "MICROSOFT WORD", "BANE OF HERO", "TUBA", "CHAIR", "BROKEN EL BLANCO ARRAY", "TOY GUN", "RUN", "HAX", "©", "$$$$", "MIT SCRATCH", "MALBOLGE", "INTERCAL", "BROOM CLOSET", "DENIAL STAMP", "CRAYON PASSPORT");
 
 hard = False;
+rhard = False;
 murder = 0;
 color = "NONE";
+
+ext = "";
 
 def strife(pos, boss):
     global world;
@@ -69,6 +75,7 @@ def strife(pos, boss):
     global hard;
     li = monster;
     at = attacks;
+    instagib = False;
     if not boss:
         typ = random.randrange(0, len(li));
         ehp = copy.deepcopy(health[typ]);
@@ -76,34 +83,47 @@ def strife(pos, boss):
             typ = li.index("The Hexahedron");
             ehp = copy.deepcopy(health[typ]);
             color = "NONE";
+        if places[(world[pos]["attr"] >> 1) & 15] == "a border checkpoint":
+            li = ["Border Inspector", "EZIC"];
+            typ = random.randrange(0, len(li));
+            ehp = [4, 4][typ];
+            at = [{19: "detains you", 34: "shoots you with a tranquilizer dart", 49: "shoots you with a rifle", 15: "has had worse days at the checkpoint"}, {81: "poisons you", 30: "bribes the local government", 19: "bombs you"}]
     else:
         li = bossl;
         at = bossa;
         typ = random.randrange(0, len(li));
         ehp = copy.deepcopy(bossh[typ]);
+    mehp = ehp;
     
     print("DO YOU WISH TO ENGAGE IN COMBAT‽");
     engage = input("Yn> ").lower();
     if engage.upper() == "PROOGSVGIRZMTOVTLW":
         print("When gravity falls and earth becomes sky, fear the Beast with Just One Eye.");
         strife(pos, True);
+        return;
     elif engage.upper() == "UVZIGSVXFYRXTLW":
         print("\"You not only have to think outside the box, but you also have to burn the box with a flamethrower, freeze the remaining ashes of the box, and throw the ice with ash in it into the void.\"");
         color = "PEWTER";
         strife(pos, boss);
+        return;
     elif engage.upper() == "SZROGSVKVDGVITLW":
         print("Bismuth.");
         world[pos]["attr"] &= ~30;
-        world[pos]["attr"] |= ~(places.index("an armory") << 1);
+        world[pos]["attr"] |= places.index("an armory") << 1;
+        return;
+    elif engage.upper() == "YFIMGSVSVOOTLW":
+        print("No puppet strings can hold them down. So patiently they watch this town. Abormal will soon be the norm. Enjoy the calm before the storm.");
+        strife(pos, False);
         return;
     elif "n" in engage:
         print("The enemy seems confused, and takes out a cellualar phone.");
         print("You hear something come out of the room's loudspeakers.");
         print("\"This is Prostetnic Vogon Jeltz of the Galactic Hyperspace Planning Council...\"");
         time.sleep(5);
-        sys.exit();
+        restart();
     elif "y" in engage:
         endodge = False;
+        lwep = "";
         print("\n" * 100);
         if not boss:
             print(li[typ] + " is here!");
@@ -121,12 +141,15 @@ def strife(pos, boss):
             print("Your Limbs: " + str(limbs));
             print("Enemy Limbs: " + str(ehp));
             wep = input("Weapon> ");
+            if wep.upper() == "MURDER IT DEAD":
+                print("Do it yourself, you lazy pony.");
             if wep.upper() in inv.keys():
                 dodged = False;
+                dodnex = False;
                 parried = False;
                 dc = inv[wep.upper()];
                 if endodge and not wep.upper() == "RUN":
-                    dc -= 15
+                    dc -= 15;
                 if(random.randint(1, 20) <= (dc % 20)):
                     if endodge:
                         dc += 15
@@ -143,18 +166,26 @@ def strife(pos, boss):
                                     inv["RESOLVER"] = 12359;
                             print("You coward.");
                             return;
-                        elif boss and wep.upper() == "RUN":
+                        elif boss and wep.upper() == "RUN" and not rhard:
                             rel = input("Do you really think you can run from " + li[typ] + "?\nN> ");
                             if 'y' in rel.lower():
                                 print("You lost 1 useless murder point(s)!");
                         if not (wep.upper() == "PARRY" or wep.upper() == "DODGE" or wep.upper() == "RUN"):
                             print(str(int(math.ceil(dc / 20))) + " " + li[typ] + " limb(s) removed!");
+                            if ehp is mehp:
+                                instagib = True;
                             ehp -= int(math.ceil(dc / 20));
+                            if not (instagib and ehp <= 0):
+                                instagib = False;
+                            lwep = wep.upper();
                         if dc is 12359:
                             print("GUN turns against you!");
                             del(inv["RESOLVER"]);
-                            ehp = 1;
-                            typ = 2;
+                            li = defl;
+                            at = defa;
+                            typ = li.index("Gun");
+                            ehp = defh[typ];
+                            
                     elif boss:
                         print("GUN jams from fear!");
                     else:
@@ -173,7 +204,7 @@ def strife(pos, boss):
                     usedc = dc;
                     if usedc < 0:
                         usedc *= -1;
-                    if dodged and not boss:
+                    if (dodnex or dodged) and not boss:
                         dc -= 10;
                     if dc < 0:
                         endodge = True;
@@ -181,7 +212,7 @@ def strife(pos, boss):
                         if usedc == dc * -1 and usedc < 20:
                             usedc = 0;
                         mod = 1;
-                        if dodged and not boss:
+                        if (dodnex or dodged) and not boss:
                             dc += 10;
                         if li[typ] == "The Hexahedron":
                             ehp = copy.deepcopy(health[typ]);
@@ -200,6 +231,9 @@ def strife(pos, boss):
                         else:
                             print(li[typ] + " missed!");
                     parried = False;
+                    dodex = False;
+                    if dodged:
+                        dodex = True;
                     dodged = False;
             elif wep.upper() == "KAMIKAZE":
                 if li[typ] == "The Hexahedron":
@@ -225,26 +259,31 @@ def strife(pos, boss):
                         health = list(copy.deepcopy(bossh));
                         health.append(tmp);
                         hard = True;
+                        rhard = True;
                         for key in inv:
                             inv[key] += random.randint(0, 42);
+                            if inv[key] % 20 is 0:
+                                inv[key] -= 1;
                     tut();
                     begin();
                     time.sleep(5);
-                    sys.exit();
+                    restart();
                 print("6 6 6 K I L L C H O P D E L U X E");
                 print("A L L   L I M B S   R E M O V E D");
                 time.sleep(5);
-                sys.exit();
+                restart();
         if(limbs > 0):
+            if instagib and lwep == "DENIAL STAMP":
+                print(li[typ] + " has been detained.\nGlory to Arstotzka.");
             print("You win! You gain 1 useless murder point(s)!");
             world[pos]["attr"] &= ~(1 << 8);
-            if typ is 2:
+            if li[typ] == "Gun":
                 print("You got RESOLVER!");
                 inv["RESOLVER"] = 12359;
         else:
             print("You are dead.");
             time.sleep(5);
-            sys.exit();
+            restart();
     else:
         strife(pos, boss);
 def begin():
@@ -314,7 +353,7 @@ def begin():
                         print("Pick your posion, the panacea.");
                         cont = False;
                         while not cont:
-                            print("OPTIONS:\n1: CRIMSON\n2: GUNMETAL\n3: INDIGO\n4: VERDANT\n5: PEWTER");
+                            print("OPTIONS:\n1: CRIMSON\n2: GUNMETAL\n3: INDIGO\n4: VERDANT\n5: PEWTER\nn: CARMINE");
                             col = input("12345> ");
                             if col == "1": # Extra limbs; Extra Enemies; Random Encounters
                                 limbs += 32;
@@ -326,12 +365,12 @@ def begin():
                                 monster = list(copy.deepcopy(gunl));
                                 attacks = list(copy.deepcopy(guna));
                                 health = list(copy.deepcopy(gunh));
-                                print("GUNMETAL. A choice for the foolish and the brave. But what is the difference?");
+                                print("GUNMETAL. A choice for the foolish and the brave. But what is the difference between the two?");
                                 color = "GUNMETAL";
                                 cont = True;
                                 murder -= 1;
                             elif col == "3": # Everything is Flooded
-                                adj = ["is wet", "is wet", "is wet", "is wet", "is wet", "is wet", "is wet", "is wet"];
+                                adj = ["is quite wet", "is very wet", "is wetter than normal", "is more wet than not wet.", "is wetter than you", "is wet", "is wet", "is wet"];
                                 places = ["an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean", "an ocean"];
                                 monster = list(copy.deepcopy(fishl));
                                 attacks = list(copy.deepcopy(fisha));
@@ -351,7 +390,7 @@ def begin():
                                 attacks = copy.deepcopy(defa);
                                 health = copy.deepcopy(defh);
                                 hard = False;
-                                inv["THE FEZ"] = copy.deepcopy(inv["PUNCH"]);
+                                inv["THE FEZ"] = copy.deepcopy(inv["PUNCH"]) + 20;
                                 del(inv["PUNCH"]);
                                 print("All right welcome to the club enjoy your free hat.");
                                 color = "VERDANT";
@@ -375,11 +414,28 @@ def begin():
                                 elif rand is 4:
                                     print("Since when is a tutorial simply that?");
                                     print("CREATETHENULLEDGOD");
+                                elif rand is 5:
+                                    print("Fights don't have to be with your boss.");
+                                    print("BURNTHEHELLGOD");
                                 else:
                                     print("The Dice of Fate does not favor you today.");
                                 color = "PEWTER";
                                 cont = True;
                                 murder -= 1;
+                            elif col.upper() == "CARMINE": # T h e e n d .
+                                time.sleep(2);
+                                for i in range(2**random.randint(16, 32)):
+                                    print(random.choice(string.letters));
+                                time.sleep(2);
+                                print("ANCIENT BLOOD AND BLACKENED SKIES. THE FOREST DARK SHALL ONCE MORE RISE.");
+                                i = random.randint(2, 10);
+                                rhard = False;
+                                while i > 0:
+                                    strife(pos, True);
+                                    i -= 1;
+                                pos -= 1;
+                                world[pos]["dir"] = 4;
+                                
                         print("You feel a change...");
                 world[pos]["attr"] |= 512;
             if places[(world[pos]["attr"] >> 1) & 15] == "a lab" and not (world[pos]["attr"] >> 9) & 1 is 1:
@@ -388,6 +444,20 @@ def begin():
                 world[pos]["attr"] |= 512;
             print("It " + adj[(world[pos]["attr"] >> 5) & 7] + ".");
             if (world[pos]["attr"] >> 8 is 1) or (color == "CRIMSON" and random.randint(0, 1) is 0) or (color == "GUNMETAL" and random.randint(0, 3) is 0):
+                if places[(world[pos]["attr"] >> 1) & 15] == "a border checkpoint":
+                    if "CRAYON PASSPORT" in inv and places[(world[pos]["attr"] >> 1) & 15] == "a border checkpoint":
+                        print("Cobrastan is not a real country.");
+                    else:
+                        print("Are you male or female?");
+                        ruples = 0;
+                        while input("The passport is correct.> ").lower() != "the passport is correct.":
+                            ruples += 1;
+                            if ruples == 4:
+                                print("Just type \"The passport in correct.\" already. Without quotes.");
+                        print("Please wait here.\n...");
+                strife(pos, False);
+            elif "CRAYON PASSPORT" in inv and places[(world[pos]["attr"] >> 1) & 15] == "a border checkpoint":
+                print("Cobrastan is not a real country.");
                 strife(pos, False);
         if not "dir" in world[pos]:
             adir = ldir;
@@ -421,10 +491,11 @@ def begin():
             if world[pos]["attr"] & 1 is 1:
                 win = True;
     world[pos]["attr"] |= 1 << 8;
+    rhard = False;
     strife(pos, True);
     print("You have successfully escaped!");
     time.sleep(5);
-    sys.exit();
+    sys.exit(0);
 
 def init():
     global world;
@@ -445,10 +516,10 @@ def init():
                 if v not in world:
                     stuff += 1;
                     world[v] = {};
-                    if(k > 20):
-                        conn = random.randint(0, 5 - int(k / 20));
+                    if(k > 10):
+                        conn = random.randint(0, 5 - int(k / 10));
                     else:
-                        conn = random.randint(1, 5 - int(k / 20));
+                        conn = random.randint(1, 5 - int(k / 10));
                     if random.randint(0, 1) is 1 and ((k % 4) + 1 > conn):
                         conn = (k % 4) + 1;
                     pgen = [0];
@@ -459,28 +530,28 @@ def init():
                                 direc = random.randint(1, 4);
                             pgen.append(direc);
                             adir = 0;
-                            if(direc == 1): # North
+                            if(direc == 1) and (v + 1 > 0 and v + 1 < 9999): # North
                                 genleft[k + 1].append(v + 1);
                                 if v + 1 in dirtodo:
                                     dirtodo[v + 1] |= 4;
                                 else:
                                     dirtodo[v + 1] = 4;
                                 adir |= 1;
-                            elif(direc == 2): # East
+                            elif(direc == 2) and (v + 100 > 0 and v + 100 < 9999): # East
                                 genleft[k + 1].append(v + 100);
                                 if v + 100 in dirtodo:
                                     dirtodo[v + 100] |= 8;
                                 else:
                                     dirtodo[v + 100] = 8;
                                 adir |= 2;
-                            elif(direc == 3): # South
+                            elif(direc == 3) and (v - 1 > 0 and v - 1 < 9999): # South
                                 genleft[k + 1].append(v - 1);
                                 if v - 1 in dirtodo:
                                     dirtodo[v - 1] |= 1;
                                 else:
                                     dirtodo[v - 1] = 1;
                                 adir |= 4;
-                            elif(direc == 4): # West
+                            elif(direc == 4) and (v - 100 > 0 and v - 100 < 9999): # West
                                 genleft[k + 1].append(v - 100);
                                 if v - 100 in dirtodo:
                                     dirtodo[v - 100] |= 2;
@@ -503,6 +574,7 @@ def init():
                                 world[v]["attr"] = attr;
                 genleft[k].remove(v);
     wkey = random.sample(list(world.keys()), 1);
+    ext = wkey[0];
     if "attr" in world[wkey[0]]:
         world[wkey[0]]["attr"] |= 1;
     else:
@@ -557,6 +629,10 @@ class Nulled:
     progress = -1;
     name = "";
     def __init__(self):
+        print("welp this is WIP sorry");
+        os.remove(os.path.expanduser("~/.nulled"));
+        time.sleep(5);
+        sys.exit(0);
         print("You really had to do it, didn't you?");
         time.sleep(2);
         print("No, no, no... You just had to anger the PEWTER GOD.");
@@ -579,6 +655,8 @@ class Nulled:
         file = open(os.path.expanduser("~/.nulled"), 'w');
         file.write(str(self.progress) + '\n');
         file.write(self.name + '\n');
+        file.flush();
+        file.close();
 
     def load(self): # Load NULLED data.
         def remNN(s):
@@ -596,7 +674,7 @@ class Nulled:
                 if self.name.lower() == "local identifier":
                     print("ERROR: Joke detected.");
                     time.sleep(5);
-                    sys.exit(0);
+                    restart();
                 print("Welcome, user " + self.name + ".");
                 self.progress = 0;
                 self.save();
@@ -683,12 +761,18 @@ class Nulled:
                     self.save();
                     pony(True, 2**31);
                     time.sleep(5);
-                    sys.exit(0);
+                    restart();
                 else:
                     print("Goodbye, " + self.name + ".");
             elif self.progress is 1:
                 if self.menu() == "p":
                     print("Thee has't repent'd f'r thy sins.");
+                    time.sleep(2);
+                    print("...");
+                    time.sleep(2);
+                    print("");
+                    self.progress += 1;
+                    self.save();
                 else:
                     print("Goodbye, " + self.name + ".");
             else:
@@ -697,8 +781,14 @@ class Nulled:
                 print("welp this is WIP sorry");
                 os.remove(os.path.expanduser("~/.nulled"));
                 time.sleep(5);
-                sys.exit(0);
-            
+                restart();
+
+def restart():
+    sys.exit(0);
+    #print("Restarting...");
+    #time.sleep(2);
+    #print('\n' * 100);
+    #os.execl(sys.executable, sys.executable, *sys.argv);
 
 if os.path.exists(os.path.expanduser("~/.nulled")):
     nu = Nulled();
@@ -713,3 +803,5 @@ else:
     tut();
     begin();
     time.sleep(5);
+
+                

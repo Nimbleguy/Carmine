@@ -47,8 +47,8 @@ gunl = ("Revolver Gundra", "Assult Gun Launcher", "Super Plasma Cangun", "Auto C
 guna = ({79: "shoots a triple barradge", 39: "resolves the conflict", 19: "shoots"}, {19: "launches a gun", 39: "assults you with guns", 119: "shoots a firing line into existance"}, {12355: "launched a barradge"}, {59: "fires some bolts", 99: "got it's trigger stuck", -39: "pins you down"}, {19: "[UNINTELLIGBLE FIRING NOISES]", 35: "[INFERNAL NOISES OF HELL]", -87: "[BLINDING FLASH OF DEAFNESS]"});
 gunh = (5, 2, 1, 1, 2);
 
-fishl = ("Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Spanish Inquisition");
-fisha = ({-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-4041: "is unexpected"});
+fishl = ("Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Fish", "Spanish Inquisition");
+fisha = ({-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-19: "swims"}, {-4050: "is unexpected"});
 fishh = (1, 1, 1, 1, 1, 1, 1, 1, 1, 4)
 
 limbs = 4;
@@ -73,8 +73,8 @@ def strife(pos, boss):
     global color;
     global murder;
     global hard;
-    li = monster;
-    at = attacks;
+    li = copy.deepcopy(monster);
+    at = copy.deepcopy(attacks);
     instagib = False;
     if not boss:
         typ = random.randrange(0, len(li));
@@ -150,7 +150,7 @@ def strife(pos, boss):
                 dc = inv[wep.upper()];
                 if endodge and not wep.upper() == "RUN":
                     dc -= 15;
-                if(random.randint(1, 20) <= (dc % 20)):
+                if(random.randint(1, 20) <= (dc % 20)) and not (wep.upper() == "PARRY" or wep.upper() == "DODGE"):
                     if endodge:
                         dc += 15
                     if not (dc is 12359 and (boss or li[typ] == "The Hexahedron")):
@@ -185,7 +185,6 @@ def strife(pos, boss):
                             at = defa;
                             typ = li.index("Gun");
                             ehp = defh[typ];
-                            
                     elif boss:
                         print("GUN jams from fear!");
                     else:
@@ -205,7 +204,7 @@ def strife(pos, boss):
                     if usedc < 0:
                         usedc *= -1;
                     if (dodnex or dodged) and not boss:
-                        dc -= 10;
+                        dc += inv["DODGE"];
                     if dc < 0:
                         endodge = True;
                     if(random.randint(1, 20) <= (usedc % 20)):
@@ -294,6 +293,9 @@ def begin():
     global inv;
     global color;
     global murder;
+    global monster;
+    global attacks;
+    global health;
     win = False;
     pos = 4545;
     ldir = 0;
@@ -454,6 +456,16 @@ def begin():
                             ruples += 1;
                             if ruples == 4:
                                 print("Just type \"The passport in correct.\" already. Without quotes.");
+                            elif ruples == 5:
+                                print("...");
+                            elif ruples == 6:
+                                print("Did you remember the period?");
+                            elif ruples == 7:
+                                print("...");
+                            elif ruples == 8:
+                                print("Really?");
+                            elif ruples == 9:
+                                print("I give up.");
                         print("Please wait here.\n...");
                 strife(pos, False);
             elif "CRAYON PASSPORT" in inv and places[(world[pos]["attr"] >> 1) & 15] == "a border checkpoint":
@@ -803,5 +815,3 @@ else:
     tut();
     begin();
     time.sleep(5);
-
-                
